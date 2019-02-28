@@ -1,32 +1,44 @@
-import StripeCheckout from 'react-stripe-checkout'
-import { Button, Segment, Divider } from 'semantic-ui-react'
+import StripeCheckout from "react-stripe-checkout";
+import { Button, Segment, Modal, Header } from "semantic-ui-react";
+import CheckoutForm from "./CheckoutForm";
 
-export default ({
-  handleCheckout,
-  display_price: {
-    with_tax: { amount, currency, formatted }
+export default class extends React.Component {
+  state = {
+    showCheckoutForm: false
+  };
+
+  handleShowCheckoutForm = () => {
+    this.setState({
+      showCheckoutForm: true
+    });
+  };
+
+  render() {
+    const {
+      handleCheckout,
+      display_price: {
+        with_tax: { amount, currency, formatted }
+      }
+    } = this.props;
+
+    return (
+      <Segment clearing size="large">
+        <strong>Sub total:</strong> {formatted}
+        <Modal
+          trigger={
+            <Button color="black" floated="right">
+              Check out
+            </Button>
+          }
+        >
+          <Modal.Header>Checkout</Modal.Header>
+          <Modal.Content image>
+            <Modal.Description>
+              <CheckoutForm onSubmit={handleCheckout} />
+            </Modal.Description>
+          </Modal.Content>
+        </Modal>
+      </Segment>
+    );
   }
-}) => (
-  <React.Fragment>
-    <Divider />
-    <Segment clearing size="large">
-      <strong>Sub total:</strong> {formatted}
-      <StripeCheckout
-        name="NextJS Demo Store"
-        amount={amount}
-        currency={currency}
-        stripeKey={process.env.STRIPE_PUBLISHABLE_KEY}
-        shippingAddress={false}
-        billingAddress={true}
-        zipCode={true}
-        token={handleCheckout}
-        reconfigureOnUpdate={false}
-        triggerEvent="onClick"
-      >
-        <Button color="black" floated="right">
-          Check out
-        </Button>
-      </StripeCheckout>
-    </Segment>
-  </React.Fragment>
-)
+}
